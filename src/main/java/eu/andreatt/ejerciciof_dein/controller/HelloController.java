@@ -206,32 +206,58 @@ public class HelloController {
     @FXML
     void exportar(ActionEvent event) {
         Stage stage = new Stage();
-        fileChooser = new FileChooser();
-        fileChooser.setTitle("Export File");
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Exportar archivo CSV");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
-        fileChooser.showSaveDialog(stage);
-        String nombreGuardar = fileChooser.showSaveDialog(stage).getName();
-        try (BufferedWriter w = new BufferedWriter(new FileWriter(nombreGuardar));){
 
-            w.write(tabla.getItems());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        // Mostrar el cuadro de diálogo de guardar
+        File archivoGuardar = fileChooser.showSaveDialog(stage);
+
+        if (archivoGuardar != null) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(archivoGuardar))) {
+                // Encabezado del archivo CSV
+                writer.write("Nombre,Apellido,Edad\n");
+
+                // Recorrer los items de la tabla y escribir cada persona en el archivo
+                for (Persona persona : tabla.getItems()) {
+                    writer.write(persona.getNombre() + "," + persona.getApellido() + "," + persona.getEdad() + "\n");
+                }
+            } catch (IOException e) {
+                mostrarAlertError(stage, "Error al exportar archivo: " + e.getMessage());
+            }
         }
-        System.out.println(nombreGuardar);
-
-
     }
+
 
     @FXML
     void importar(ActionEvent event) {
         Stage stage = new Stage();
-        fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Resource File");
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Importar archivo CSV");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
 
-        File archSel = fileChooser.showOpenDialog(stage);
-        if (archSel != null) {
-            System.out.println("Archivo seleccionado: " + archSel.getAbsolutePath());
+        File archivoSeleccionado = fileChooser.showOpenDialog(stage);
+        if (archivoSeleccionado != null) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(archivoSeleccionado))) {
+                String linea;
+                tabla.getItems().clear(); // Limpiar la tabla antes de importar
+
+                // Leer el archivo línea por línea (omitimos el encabezado)
+                reader.readLine(); // Saltar la primera línea que contiene el encabezado
+
+                while ((linea = reader.readLine()) != null) {
+                    String[] datos = linea.split(","); // Separar los valores por coma
+                    String nombre = datos[0];
+                    String apellido = datos[1];
+                    int edad = Integer.parseInt(datos[2]);
+
+                    // Crear un nuevo objeto Persona y añadirlo a la tabla
+                    Persona persona = new Persona(nombre, apellido, edad);
+                    tabla.getItems().add(persona);
+                }
+            } catch (IOException e) {
+                mostrarAlertError(stage, "Error al importar archivo: " + e.getMessage());
+            }
         }
     }
 
@@ -240,4 +266,5 @@ public class HelloController {
     void filtro(ActionEvent event) {
 
     }
+
 }
