@@ -7,11 +7,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Controlador de la interfaz gráfica de la aplicación que gestiona una tabla de personas.
@@ -19,6 +22,7 @@ import java.io.IOException;
  */
 public class HelloController {
 
+    private static final Logger log = LoggerFactory.getLogger(HelloController.class);
     @FXML
     private Button btnAgregarPersona;  // Botón para agregar una nueva persona
 
@@ -27,6 +31,15 @@ public class HelloController {
 
     @FXML
     private Button btnModificar;  // Botón para modificar una persona seleccionada
+
+    @FXML
+    private Button btnExportar;
+
+    @FXML
+    private Button btnImportar;
+
+    @FXML
+    private TextField txtFiltro;
 
     @FXML
     private TableView<Persona> tabla;  // Tabla que muestra la lista de personas
@@ -39,6 +52,8 @@ public class HelloController {
 
     @FXML
     private TableColumn<Persona, Integer> colEdad;  // Columna para mostrar la edad de la persona
+
+    private FileChooser fileChooser;
 
     /**
      * Inicializa las columnas de la tabla, estableciendo los valores de las propiedades de los objetos Persona.
@@ -186,5 +201,43 @@ public class HelloController {
             alert.setContentText(e.getMessage());
             alert.showAndWait();
         }
+    }
+
+    @FXML
+    void exportar(ActionEvent event) {
+        Stage stage = new Stage();
+        fileChooser = new FileChooser();
+        fileChooser.setTitle("Export File");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        fileChooser.showSaveDialog(stage);
+        String nombreGuardar = fileChooser.showSaveDialog(stage).getName();
+        try (BufferedWriter w = new BufferedWriter(new FileWriter(nombreGuardar));){
+
+            w.write(tabla.getItems());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(nombreGuardar);
+
+
+    }
+
+    @FXML
+    void importar(ActionEvent event) {
+        Stage stage = new Stage();
+        fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Resource File");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+
+        File archSel = fileChooser.showOpenDialog(stage);
+        if (archSel != null) {
+            System.out.println("Archivo seleccionado: " + archSel.getAbsolutePath());
+        }
+    }
+
+
+    @FXML
+    void filtro(ActionEvent event) {
+
     }
 }

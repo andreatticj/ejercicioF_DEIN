@@ -1,6 +1,8 @@
 module eu.andreatt.ejerciciof_dein {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.desktop;
+    requires org.slf4j;
 
 
 //    opens eu.andreatt.ejercicioe_dein to javafx.fxml;

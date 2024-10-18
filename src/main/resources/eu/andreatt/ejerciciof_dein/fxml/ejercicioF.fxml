@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eu.andreatt.ejerciciof_dein.controller.HelloController">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eu.andreatt.ejerciciof_dein.controller.HelloController">
     <columnConstraints>
         <ColumnConstraints />
         <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
@@ -38,9 +38,9 @@
       <Button fx:id="btnAgregarPersona" mnemonicParsing="false" onAction="#agregarPersona" text="Agregar Persona" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
       <Button fx:id="btnEliminar" mnemonicParsing="false" onAction="#eliminar" text="Eliminar Persona" GridPane.columnIndex="3" GridPane.rowIndex="4" />
       <Button fx:id="btnModificar" mnemonicParsing="false" onAction="#modificar" text="Modificar Persona" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
-      <TextField GridPane.columnIndex="2" />
+      <TextField fx:id="txtFiltro" onAction="#filtro" GridPane.columnIndex="2" />
       <Label text="Filtrar por nombre:" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
-      <Button mnemonicParsing="false" text="Importar" GridPane.columnIndex="4" GridPane.halignment="CENTER" />
-      <Button mnemonicParsing="false" text="Exportar" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
+      <Button fx:id="btnImportar" mnemonicParsing="false" onAction="#importar" text="Importar" GridPane.columnIndex="4" GridPane.halignment="CENTER" />
+      <Button fx:id="btnExportar" mnemonicParsing="false" onAction="#exportar" text="Exportar" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
     </children>
 </GridPane>
