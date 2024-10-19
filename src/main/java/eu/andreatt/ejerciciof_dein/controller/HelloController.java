@@ -1,6 +1,10 @@
 package eu.andreatt.ejerciciof_dein.controller;
 
 import eu.andreatt.ejerciciof_dein.model.Persona;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,10 +15,11 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import java.io.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Controlador de la interfaz gráfica de la aplicación que gestiona una tabla de personas.
@@ -22,7 +27,6 @@ import java.io.*;
  */
 public class HelloController {
 
-    private static final Logger log = LoggerFactory.getLogger(HelloController.class);
     @FXML
     private Button btnAgregarPersona;  // Botón para agregar una nueva persona
 
@@ -54,16 +58,43 @@ public class HelloController {
     private TableColumn<Persona, Integer> colEdad;  // Columna para mostrar la edad de la persona
 
     private FileChooser fileChooser;
+    private ObservableList<Persona> listaPersonas = FXCollections.observableArrayList();
 
     /**
-     * Inicializa las columnas de la tabla, estableciendo los valores de las propiedades de los objetos Persona.
+     * Inicializa los elementos de la tabla, asignando los valores de las columnas correspondientes
+     * a las propiedades de los objetos Persona. También activa el filtrado dinámico de personas
+     * basado en la entrada del campo de texto.
      */
     @FXML
     public void initialize() {
+        // Inicializa las columnas
         colNombre.setCellValueFactory(cellData -> cellData.getValue().nombreProperty());
         colApellido.setCellValueFactory(cellData -> cellData.getValue().apellidoProperty());
         colEdad.setCellValueFactory(cellData -> cellData.getValue().edadProperty().asObject());
+
+        tabla.setItems(listaPersonas);
+
+        // Filtrar personas
+        txtFiltro.textProperty().addListener((observable, oldValue, newValue) -> filtrarPersonas(newValue));
     }
+
+    /**
+     * Filtra las personas de la lista en función del texto ingresado en el campo de búsqueda.
+     * Si no se proporciona ningún filtro, se muestran todas las personas.
+     *
+     * @param filtro El texto utilizado para filtrar las personas.
+     */
+    private void filtrarPersonas(String filtro) {
+        if (filtro == null || filtro.isEmpty()) {
+            tabla.setItems(listaPersonas);
+        } else {
+            List<Persona> filtrada = listaPersonas.stream()
+                    .filter(p -> p.getNombre().toLowerCase().contains(filtro.toLowerCase()))
+                    .collect(Collectors.toList());
+            tabla.setItems(FXCollections.observableArrayList(filtrada));
+        }
+    }
+
 
     /**
      * Evento que se dispara al hacer clic en el botón para agregar una nueva persona.
@@ -77,9 +108,10 @@ public class HelloController {
     }
 
     /**
-     * Evento que se dispara al hacer clic en el botón para eliminar una persona seleccionada.
+     * Acción que se ejecuta al hacer clic en el botón "Eliminar". Elimina la persona seleccionada
+     * de la tabla después de confirmar la acción a través de una ventana emergente.
      *
-     * @param event Evento de acción que ocurre al hacer clic en el botón
+     * @param event Evento que se dispara al hacer clic en el botón.
      */
     @FXML
     void eliminar(ActionEvent event) {
@@ -93,9 +125,10 @@ public class HelloController {
     }
 
     /**
-     * Confirma la eliminación de la persona seleccionada.
+     * Confirma la eliminación de una persona mostrando una ventana de confirmación.
+     * Si el usuario acepta, se elimina la persona seleccionada de la tabla.
      *
-     * @param event             El evento que desencadena la acción.
+     * @param event Evento que dispara la acción.
      * @param personaSeleccionada La persona que se va a eliminar.
      */
     private void confirmarEliminacion(ActionEvent event, Persona personaSeleccionada) {
@@ -138,10 +171,10 @@ public class HelloController {
     }
 
     /**
-     * Evento que se dispara al hacer clic en el botón para modificar una persona seleccionada.
-     * Abre una ventana modal para editar los datos de la persona seleccionada.
+     * Acción que se ejecuta al hacer clic en el botón "Modificar". Abre una ventana modal
+     * para permitir la modificación de los datos de la persona seleccionada.
      *
-     * @param event Evento de acción que ocurre al hacer clic en el botón
+     * @param event Evento que se dispara al hacer clic en el botón.
      */
     @FXML
     void modificar(ActionEvent event) {
@@ -203,6 +236,12 @@ public class HelloController {
         }
     }
 
+    /**
+     * Acción que se ejecuta al hacer clic en el botón "Exportar". Permite al usuario exportar
+     * los datos de las personas en la tabla a un archivo CSV.
+     *
+     * @param event Evento que se dispara al hacer clic en el botón.
+     */
     @FXML
     void exportar(ActionEvent event) {
         Stage stage = new Stage();
@@ -228,8 +267,12 @@ public class HelloController {
         }
     }
 
-
-
+    /**
+     * Acción que se ejecuta al hacer clic en el botón "Importar". Permite al usuario importar
+     * datos de personas desde un archivo CSV y mostrarlos en la tabla.
+     *
+     * @param event Evento que se dispara al hacer clic en el botón.
+     */
     @FXML
     void importar(ActionEvent event) {
         Stage stage = new Stage();
@@ -263,9 +306,5 @@ public class HelloController {
     }
 
 
-    @FXML
-    void filtro(ActionEvent event) {
-
-    }
 
 }

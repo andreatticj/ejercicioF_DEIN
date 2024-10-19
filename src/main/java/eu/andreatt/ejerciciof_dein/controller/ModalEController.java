@@ -45,8 +45,7 @@ public class ModalEController {
     }
 
     /**
-     * Maneja el evento de cancelar y no añadir persona a la lista.
-     * Cierra la ventana.
+     * Maneja el evento de cancelar la operación, cerrando la ventana sin realizar cambios.
      *
      * @param event El evento que desencadena la acción.
      */
@@ -69,9 +68,9 @@ public class ModalEController {
     }
 
     /**
-     * Maneja el evento de guardar o editar una persona.
-     * Verifica que los datos ingresados sean válidos antes de agregar o editar a la persona en la lista.
-     * Si los datos son válidos, agrega o edita la persona y cierra la ventana.
+     * Maneja el evento de guardar una persona. Si es una nueva persona, la agrega a la lista.
+     * Si es una modificación, actualiza los datos de la persona seleccionada.
+     * Verifica que los datos ingresados sean válidos antes de realizar cambios.
      *
      * @param event El evento que desencadena la acción.
      */
@@ -81,12 +80,23 @@ public class ModalEController {
         String errores = verificarInfo();  // Verifica la validez de la información ingresada
 
         if (errores.isEmpty()) {  // Si no hay errores
+            if (txtNombre.getText().isEmpty() || txtApellido.getText().isEmpty() || txtEdad.getText().isEmpty()) {
+                mostrarAlertError(win, "Uno o más campos son nulos.");
+                return;
+            }
+
             String nombre = txtNombre.getText();
             String apellido = txtApellido.getText();
-            int edad = Integer.parseInt(txtEdad.getText());
+            int edad;
+
+            try {
+                edad = Integer.parseInt(txtEdad.getText());
+            } catch (NumberFormatException e) {
+                mostrarAlertError(win, "La edad debe ser un número válido.");
+                return;
+            }
 
             if (persona != null) { // Si estamos editando una persona
-                // Verifica que no exista otra persona con los mismos datos
                 Persona personaEditada = new Persona(nombre, apellido, edad);
                 if (!verificarExistePersona(win, personaEditada)) {
                     // Actualiza la persona existente
@@ -97,11 +107,15 @@ public class ModalEController {
                     cargarPersona(persona);  // Carga nuevamente la persona si ya existe
                     return; // Si ya existe, no se guarda ni se cierra la ventana
                 }
-
             } else { // Si estamos creando una nueva persona
                 Persona nuevaPersona = new Persona(nombre, apellido, edad);  // Crea una nueva persona
+                System.out.println(nuevaPersona);
+            if (personas == null) {
+                    mostrarAlertError(win, "La lista de personas no está inicializada.");
+                    return;
+                }
                 if (!verificarExistePersona(win, nuevaPersona)) {
-                    personas.add(nuevaPersona);  // Agrega la nueva persona a la lista
+                    personas.add(nuevaPersona);  // Intenta agregar la nueva persona a la lista
                 } else {
                     return;  // Si ya existe, no hace nada
                 }
@@ -116,18 +130,24 @@ public class ModalEController {
     }
 
     /**
-     * Verifica si una persona ya existe en la lista.
+     * Verifica si una persona ya existe en la lista para evitar duplicados.
      *
      * @param win La ventana sobre la que se mostrará la alerta.
      * @param p La persona que se va a verificar.
      * @return true si la persona ya existe en la lista, false de lo contrario.
      */
     private boolean verificarExistePersona(Window win, Persona p) {
+        if (personas == null) {
+            mostrarAlertError(win, "La lista de personas no está inicializada.");
+            return false;  // La lista no está inicializada, no puede existir nada
+        }
         // Verificar si la persona ya existe en la lista
-        if (personas.contains(p)) {
-            mostrarAlertError(win, "Esa persona ya existe");  // Muestra alerta si la persona ya está en la lista
-            limpiarCampos();  // Limpia los campos de texto
-            return true; // Salir del método para evitar cerrar la ventana
+        for (Persona persona : personas) {
+            if (persona.equals(p)) { // Utiliza equals para comparar
+                mostrarAlertError(win, "Esa persona ya existe");  // Muestra alerta si la persona ya está en la lista
+                limpiarCampos();  // Limpia los campos de texto
+                return true; // Salir del método para evitar cerrar la ventana
+            }
         }
         return false;  // La persona no existe
     }
